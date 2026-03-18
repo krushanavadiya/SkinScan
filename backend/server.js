@@ -95,3 +95,11 @@ app.patch('/api/profile/skin-type', authenticate, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Slate Sanctuary backend running at http://localhost:${PORT}`));
+
+const path = require('path');
+// Serve the frontend files
+app.use(express.static(path.join(__dirname, '../frontend')));
+// Send index.html for the main route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
