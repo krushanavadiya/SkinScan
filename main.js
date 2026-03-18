@@ -72,3 +72,23 @@ document.addEventListener('DOMContentLoaded', () => {
   initRetake('retake-footer-landing');
 });
 
+// --- Navigation Lock Logic ---
+function checkDashboardAccess() {
+  const dashboardLink = document.getElementById('nav-dashboard');
+  if (!dashboardLink) return;
+
+  const hasSkinType = localStorage.getItem('skinType');
+
+  // If they haven't taken the quiz (no skinType), disable the link
+  if (!hasSkinType) {
+    dashboardLink.classList.add('disabled');
+    dashboardLink.href = 'javascript:void(0)'; // Removes the destination
+    dashboardLink.title = 'Please complete the diagnostic quiz first';
+  } else {
+    dashboardLink.classList.remove('disabled');
+    dashboardLink.href = 'dashboard.html';
+    dashboardLink.title = '';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkDashboardAccess);
