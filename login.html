@@ -447,8 +447,7 @@
   <script>
     // ─── Config ───────────────────────────────────────────────────
     // Change this if your backend runs on a different port
-    const API_BASE = 'http://localhost:3000/api';
-
+    const API_BASE = '/api';
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // ─── Tab switching ────────────────────────────────────────────
@@ -496,7 +495,7 @@
 
     // ─── Sign In (real API) ───────────────────────────────────────
     async function handleSignIn() {
-const email = document.getElementById('signup-email').value.trim().toLowerCase();      const password = document.getElementById('signin-password').value;
+const email = document.getElementById('signin-email').value.trim().toLowerCase();      const password = document.getElementById('signin-password').value;
       const errorEl  = document.getElementById('signin-error');
       const successEl = document.getElementById('signin-success');
       const btn      = document.getElementById('signin-btn');
