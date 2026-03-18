@@ -36,6 +36,13 @@ const SKIN_ADVICE = {
       { icon: '🧴', label: 'Occlusive\nlayer' },
       { icon: '🌤️', label: 'Cushion SPF' },
     ],
+    pmRoutine: [
+  { icon: '🫧', label: 'Balm\ncleanser' },
+  { icon: '💧', label: 'Hydrating\nessence' },
+  { icon: '🧪', label: 'Retinol\n(buffered)' },
+  { icon: '🧴', label: 'Rich\nceramides' },
+  { icon: '🌙', label: 'Occlusive\nlayer' },
+],
     ingredient: {
       name: 'Ceramides',
       tagline: 'The brick-and-mortar of your moisture barrier.',
@@ -78,6 +85,12 @@ const SKIN_ADVICE = {
       { icon: '🌤️', label: 'Matte\nSPF' },
       { icon: '🩹', label: 'Spot\ncorrector' },
     ],
+    pmRoutine: [
+  { icon: '🫧', label: 'Double\ncleanse' },
+  { icon: '🧪', label: 'Niacinamide\nserum' },
+  { icon: '💦', label: 'Gel\nmoisturiser' },
+  { icon: '🩹', label: 'Pimple\npatch' },
+],
     ingredient: {
       name: 'Salicylic Acid',
       tagline: 'Oil-soluble exfoliant for congested skin.',
@@ -121,6 +134,15 @@ const SKIN_ADVICE = {
       { icon: '🧴', label: 'Cream for\ncheeks' },
       { icon: '🌤️', label: 'Broad\nSPF' },
     ],
+
+    pmRoutine: [
+  { icon: '🫧', label: 'Double\ncleanse' },
+  { icon: '🧪', label: 'BHA on\nT-Zone' },
+  { icon: '💧', label: 'Hydrating\nserum' },
+  { icon: '🧴', label: 'Gel-cream\nmoisturiser' },
+  { icon: '🩹', label: 'Spot\ntreatment' },
+],
+
     ingredient: {
       name: 'Niacinamide',
       tagline: 'Balances tone and sebum in one step.',
@@ -163,6 +185,13 @@ const SKIN_ADVICE = {
       { icon: '🌤️', label: 'Mineral\nSPF' },
       { icon: '🧊', label: 'Cool\ncompress' },
     ],
+
+    pmRoutine: [
+  { icon: '🫧', label: 'Milky\ncleanse' },
+  { icon: '🌿', label: 'Centella\nserum' },
+  { icon: '🧴', label: 'Rich\nmoisturiser' },
+  { icon: '🌙', label: 'Barrier\nbalm' },
+],
     ingredient: {
       name: 'Centella Asiatica',
       tagline: 'Soothing green for reactive moments.',
@@ -205,6 +234,13 @@ const SKIN_ADVICE = {
       { icon: '🧴', label: 'Light\nmoisturiser' },
       { icon: '🌤️', label: 'SPF\n50+' },
     ],
+
+    pmRoutine: [
+  { icon: '🫧', label: 'Gentle\ncleanse' },
+  { icon: '💧', label: 'Hydrating\nessence' },
+  { icon: '🧪', label: 'Retinol\n(pea-sized)' },
+  { icon: '🧴', label: 'Ceramide\ncream' },
+],
     ingredient: {
       name: 'Vitamin C',
       tagline: 'Brightness and antioxidant guardrail.',
@@ -499,3 +535,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run the check as soon as the page loads
     document.addEventListener('DOMContentLoaded', checkDashboardAccess);
+
+    function initRoutineToggle() {
+  const toggleBtn = document.getElementById('routine-toggle');
+  const routineTitle = document.getElementById('routine-title');
+  const strip = document.getElementById('am-strip');
+  
+  if (!toggleBtn || !routineTitle || !strip) return;
+
+  const skinType = localStorage.getItem('skinType') || 'Balanced';
+  const config = SKIN_ADVICE[skinType] || SKIN_ADVICE.Balanced;
+  
+  // Make sure we have PM data to fall back on, otherwise duplicate AM for now
+  const pmData = config.pmRoutine || config.amRoutine; 
+  
+  let isAM = true;
+
+  toggleBtn.addEventListener('click', () => {
+    isAM = !isAM; // Flip the state
+    
+    // Add a quick fade-out effect
+    strip.style.opacity = '0';
+    
+    setTimeout(() => {
+      if (isAM) {
+        routineTitle.textContent = 'AM Routine';
+        toggleBtn.textContent = 'PM';
+        populateAmRoutine(config.amRoutine); // Load AM icons
+      } else {
+        routineTitle.textContent = 'PM Routine';
+        toggleBtn.textContent = 'AM';
+        populateAmRoutine(pmData); // Load PM icons
+      }
+      // Fade back in
+      strip.style.transition = 'opacity 0.3s ease';
+      strip.style.opacity = '1';
+    }, 200); // Wait 200ms for the fade out before swapping
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDashboardYearAndRetake();
+  hydrateDashboardFromSkinType();
+  populateCommunity();
+  initRoutineToggle(); // <-- Add this line right here!
+});
