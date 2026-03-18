@@ -1,5 +1,10 @@
 // Diagnostic quiz logic, animations, progress, and redirect to dashboard
+// 🔐 Protect quiz page
+const token = localStorage.getItem("ss_token");
 
+if (!token) {
+  window.location.href = "login.html";
+}
 const quizQuestions = [
   {
     id: 'oiliness',
@@ -193,6 +198,22 @@ function finishQuiz() {
   const skinType = deriveSkinType();
   localStorage.setItem('skinType', skinType);
   localStorage.setItem('skinAnswers', JSON.stringify(quizState.answers));
+
+  // Sync skin type to backend if the user is logged in
+  const token = localStorage.getItem('ss_token');
+  if (token) {
+    fetch('http://localhost:3000/api/profile/skin-type', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ skin_type: skinType }),
+    }).catch(() => {
+      // Non-fatal: local storage already has the value
+      console.warn('Could not sync skin type to server — will retry on next login.');
+    });
+  }
 
   setTimeout(() => {
     window.location.href = 'dashboard.html';

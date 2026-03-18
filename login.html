@@ -445,8 +445,13 @@
   </footer>
 
   <script>
+    // ─── Config ───────────────────────────────────────────────────
+    // Change this if your backend runs on a different port
+    const API_BASE = 'http://localhost:3000/api';
+
     document.getElementById('year').textContent = new Date().getFullYear();
 
+    // ─── Tab switching ────────────────────────────────────────────
     function switchTab(tab) {
       const signinPanel = document.getElementById('signin-panel');
       const signupPanel = document.getElementById('signup-panel');
@@ -467,6 +472,7 @@
       }
     }
 
+    // ─── Password toggle ──────────────────────────────────────────
     function togglePassword(inputId, btn) {
       const input = document.getElementById(inputId);
       if (input.type === 'password') {
@@ -478,22 +484,32 @@
       }
     }
 
-    function handleSignIn() {
-      const email = document.getElementById('signin-email').value.trim();
-      const password = document.getElementById('signin-password').value;
-      const errorEl = document.getElementById('signin-error');
+    // ─── Save session helper ──────────────────────────────────────
+    function saveSession(token, user) {
+      localStorage.setItem('ss_token', token);
+      localStorage.setItem('ss_user', JSON.stringify(user));
+      // If the server already knows their skin type, restore it locally
+      if (user.skin_type) {
+        localStorage.setItem('skinType', user.skin_type);
+      }
+    }
+
+    // ─── Sign In (real API) ───────────────────────────────────────
+    async function handleSignIn() {
+const email = document.getElementById('signup-email').value.trim().toLowerCase();      const password = document.getElementById('signin-password').value;
+      const errorEl  = document.getElementById('signin-error');
       const successEl = document.getElementById('signin-success');
-      const btn = document.getElementById('signin-btn');
+      const btn      = document.getElementById('signin-btn');
 
       errorEl.classList.remove('visible');
       successEl.classList.remove('visible');
 
+      // Client-side validation
       if (!email || !password) {
         errorEl.textContent = 'Please enter your email and password.';
         errorEl.classList.add('visible');
         return;
       }
-
       if (!email.includes('@')) {
         errorEl.textContent = 'Please enter a valid email address.';
         errorEl.classList.add('visible');
@@ -502,71 +518,122 @@
 
       btn.textContent = 'Signing in…';
       btn.classList.add('loading');
+      btn.disabled = true;
 
-      // Simulate auth — store user session and redirect
-      setTimeout(() => {
-        localStorage.setItem('ss_user', JSON.stringify({ email, name: email.split('@')[0] }));
+      try {
+        const res  = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // Show server error message (e.g. "Incorrect email or password.")
+          errorEl.textContent = data.error || 'Sign-in failed. Please try again.';
+          errorEl.classList.add('visible');
+          btn.textContent = 'Sign In';
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          return;
+        }
+
+        // Success — persist session
+        saveSession(data.token, data.user);
+        successEl.textContent = `Welcome back, ${data.user.name}! Redirecting…`;
         successEl.classList.add('visible');
         btn.textContent = 'Signed in ✓';
-        setTimeout(() => {
-          const hasSkin = localStorage.getItem('skinType');
-          window.location.href = hasSkin ? 'dashboard.html' : 'quiz.html';
-        }, 1200);
-      }, 1400);
+setTimeout(() => {
+  const hasSkin = localStorage.getItem('skinType');
+window.location.href = hasSkin ? 'dashboard.html' : 'quiz.html';}, 1200);
+
+      } catch (err) {
+        errorEl.textContent = 'Cannot reach the server. Is the backend running?';
+        errorEl.classList.add('visible');
+        btn.textContent = 'Sign In';
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
     }
 
-    function handleSignUp() {
-      const name = document.getElementById('signup-name').value.trim();
-      const email = document.getElementById('signup-email').value.trim();
+    // ─── Sign Up (real API) ───────────────────────────────────────
+    async function handleSignUp() {
+      const name     = document.getElementById('signup-name').value.trim();
+      const email    = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value;
-      const confirm = document.getElementById('signup-confirm').value;
-      const errorEl = document.getElementById('signup-error');
+      const confirm  = document.getElementById('signup-confirm').value;
+      const errorEl  = document.getElementById('signup-error');
       const successEl = document.getElementById('signup-success');
-      const btn = document.getElementById('signup-btn');
+      const btn      = document.getElementById('signup-btn');
 
       errorEl.classList.remove('visible');
       successEl.classList.remove('visible');
 
+      // Client-side validation
       if (!name || !email || !password || !confirm) {
         errorEl.textContent = 'Please fill in all fields.';
         errorEl.classList.add('visible');
         return;
       }
-
       if (!email.includes('@')) {
         errorEl.textContent = 'Please enter a valid email address.';
         errorEl.classList.add('visible');
         return;
       }
-
       if (password.length < 8) {
         errorEl.textContent = 'Password must be at least 8 characters.';
         errorEl.classList.add('visible');
         return;
       }
-
       if (password !== confirm) {
-        errorEl.textContent = 'Passwords don\'t match. Please check and retry.';
-        errorEl.classList.add('visible');
+errorEl.textContent = "Passwords do not match. Please check and retry.";        errorEl.classList.add('visible');
         return;
       }
 
       btn.textContent = 'Creating account…';
       btn.classList.add('loading');
+      btn.disabled = true;
 
-      setTimeout(() => {
-        localStorage.setItem('ss_user', JSON.stringify({ email, name }));
+      try {
+        const res  = await fetch(`${API_BASE}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // e.g. "An account with this email already exists."
+          errorEl.textContent = data.error || 'Sign-up failed. Please try again.';
+          errorEl.classList.add('visible');
+          btn.textContent = 'Create Account';
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          return;
+        }
+
+        // Success — persist session
+        saveSession(data.token, data.user);
+        successEl.textContent = 'Account created! Taking you to the diagnostic quiz…';
         successEl.classList.add('visible');
         btn.textContent = 'Account created ✓';
-        setTimeout(() => {
-          window.location.href = 'quiz.html';
-        }, 1400);
-      }, 1600);
+
+  setTimeout(() => {
+window.location.href = 'quiz.html';}, 1400);
+
+      } catch (err) {
+        errorEl.textContent = 'Cannot reach the server. Is the backend running?';
+        errorEl.classList.add('visible');
+        btn.textContent = 'Create Account';
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
     }
 
+    // ─── Forgot password (UI only — no email service yet) ─────────
     function handleForgot() {
-      const email = document.getElementById('signin-email').value.trim();
-      const errorEl = document.getElementById('signin-error');
+      const email    = document.getElementById('signin-email').value.trim();
+      const errorEl  = document.getElementById('signin-error');
       const successEl = document.getElementById('signin-success');
       if (!email) {
         errorEl.textContent = 'Enter your email above, then click "Forgot password?"';
@@ -579,11 +646,10 @@
     }
 
     function handleSocial(provider) {
-      const btn = document.getElementById('signin-btn') || document.getElementById('signup-btn');
       alert(`${provider} sign-in would open here in a production environment.`);
     }
 
-    // Allow Enter key on forms
+    // ─── Enter key support ────────────────────────────────────────
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         const signinVisible = document.getElementById('signin-panel').style.display !== 'none';
@@ -592,13 +658,11 @@
       }
     });
 
-    // --- Navigation Lock Logic ---
+    // ─── Navigation lock ──────────────────────────────────────────
     function checkDashboardAccess() {
       const dashboardLink = document.getElementById('nav-dashboard');
       if (!dashboardLink) return;
-      
       const hasSkinType = localStorage.getItem('skinType');
-
       if (!hasSkinType) {
         dashboardLink.classList.add('disabled');
         dashboardLink.href = 'javascript:void(0)';
@@ -610,7 +674,6 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', checkDashboardAccess);
   </script>
 </body>
 </html>
