@@ -523,11 +523,29 @@ body.slate-body {
   color: #64748B;
 }
 
-.bento-grid {
+/* .bento-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 160px));
   gap: 1.2rem;
+  grid-template-areas:
+    "skin skin am am"
+    "skin skin ingredient community"
+    "recs recs recs community";
+} */
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  
+  /* Change this line from minmax(0, 160px) to minmax(160px, auto) */
+  grid-template-rows: repeat(3, minmax(160px, auto)); 
+  
+  gap: 1.2rem;
+  grid-template-areas:
+    "skin skin am am"
+    "skin skin ingredient community"
+    "recs recs recs community";
 }
 
 .bento-item {
@@ -564,23 +582,99 @@ body.slate-body {
 }
 
 .skin-id {
-  grid-column: span 2;
-  grid-row: span 2;
+  grid-area: skin;
 }
 
 .am-routine {
-  grid-column: span 2;
-  grid-row: span 1;
+  grid-area: am;
 }
 
 .ingredient-card {
-  grid-column: span 1;
-  grid-row: span 1;
+  grid-area: ingredient;
 }
 
 .community {
-  grid-column: span 1;
-  grid-row: span 2;
+  grid-area: community;
+}
+
+.recommendations {
+  grid-area: recs;
+}
+
+.rec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.rec-card {
+  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.75rem 0.8rem;
+  transition: all 0.3s ease;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rec-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(100, 116, 139, 0.75);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.rec-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.rec-title {
+  margin: 0;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.rec-badge {
+  font-size: 0.7rem;
+  color: #64748B;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(248, 250, 252, 0.9);
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rec-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #64748B;
+  line-height: 1.35;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: auto;
+}
+
+.rec-tag {
+  font-size: 0.7rem;
+  color: #64748B;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  padding: 0.16rem 0.5rem;
 }
 
 .skin-id-body {
@@ -676,11 +770,23 @@ body.slate-body {
 .ingredient-face {
   position: absolute;
   inset: 0;
-  padding: 1rem 1rem;
+  padding: 0.85rem 0.95rem;
   backface-visibility: hidden;
 }
 
-.ingredient-front {
+.ingredient-front .pill {
+  display: inline-flex;
+  margin-bottom: 0.55rem;
+}
+
+.ingredient-front h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+}
+
+.ingredient-front p {
+  margin: 0;
 }
 
 .ingredient-back {
@@ -768,14 +874,19 @@ body.slate-body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     gap: 1rem;
+    grid-template-areas: none;
   }
 
   .skin-id,
   .am-routine,
   .ingredient-card,
+  .recommendations,
   .community {
-    grid-column: span 1;
-    grid-row: span 1;
+    grid-area: auto;
+  }
+
+  .rec-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .site-footer {
