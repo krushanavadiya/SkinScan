@@ -9,6 +9,26 @@ const SKIN_ADVICE = {
       'Avoid foaming cleansers; favour milky or balm textures.',
       'Use buffered retinoids and short-contact exfoliation only when skin is calm.',
     ],
+    recommendations: [
+      {
+        title: 'Cream Cleanser',
+        badge: 'AM / PM',
+        desc: 'Non-foaming cleanse that protects lipids while removing sunscreen.',
+        tags: ['barrier', 'non-stripping'],
+      },
+      {
+        title: 'Ceramide Moisturiser',
+        badge: 'Daily',
+        desc: 'Rich but breathable; seals hydration and reduces tightness.',
+        tags: ['ceramides', 'repair'],
+      },
+      {
+        title: 'Occlusive Balm',
+        badge: 'Night',
+        desc: 'A thin sealing layer on dry zones to lock moisture in.',
+        tags: ['slug-lite', 'winter'],
+      },
+    ],
     amRoutine: [
       { icon: '💧', label: 'Creamy\ncleanser' },
       { icon: '🧴', label: 'Hydrating\nessence' },
@@ -31,6 +51,26 @@ const SKIN_ADVICE = {
       'Use gel moisturisers instead of skipping hydration.',
       'Blotting papers over harsh stripping toners.',
     ],
+    recommendations: [
+      {
+        title: 'Gel Cleanser',
+        badge: 'AM / PM',
+        desc: 'Gentle surfactants that remove oil without over-stripping.',
+        tags: ['low pH', 'daily'],
+      },
+      {
+        title: 'BHA Exfoliant',
+        badge: '2–3× / wk',
+        desc: 'Salicylic acid to keep pores clear and reduce congestion.',
+        tags: ['salicylic', 'pores'],
+      },
+      {
+        title: 'Oil-Free Moisturiser',
+        badge: 'Daily',
+        desc: 'Light hydration that reduces rebound oiliness.',
+        tags: ['gel-cream', 'non-comedogenic'],
+      },
+    ],
     amRoutine: [
       { icon: '🫧', label: 'Gentle gel\ncleanser' },
       { icon: '🧪', label: 'BHA\n(t-zone)' },
@@ -52,6 +92,26 @@ const SKIN_ADVICE = {
       'Use lighter textures on the T‑zone, richer creams on cheeks.',
       'Spot-treat congestion instead of treating your whole face as oily.',
       'Introduce actives slowly and only where needed.',
+    ],
+    recommendations: [
+      {
+        title: 'Gentle Cleanser',
+        badge: 'AM / PM',
+        desc: 'A middle-ground cleanser that won’t dry cheeks or leave shine.',
+        tags: ['balanced', 'daily'],
+      },
+      {
+        title: 'Targeted Exfoliant',
+        badge: '1–2× / wk',
+        desc: 'Use BHA on the T‑zone or AHA on texture zones—never everywhere.',
+        tags: ['zone-based', 'slow start'],
+      },
+      {
+        title: 'Two Moisturisers',
+        badge: 'Daily',
+        desc: 'Light gel for T‑zone + cream for cheeks to match each zone.',
+        tags: ['mix & match', 'seasonal'],
+      },
     ],
     amRoutine: [
       { icon: '🫧', label: 'Gentle\ncleanser' },
@@ -76,6 +136,26 @@ const SKIN_ADVICE = {
       'Patch-test every new serum on the jawline first.',
       'Prioritise barrier repair over brightness or intensity.',
     ],
+    recommendations: [
+      {
+        title: 'Non-foaming Cleanser',
+        badge: 'AM / PM',
+        desc: 'Minimal fragrance-free formula that won’t sting or strip.',
+        tags: ['fragrance-free', 'gentle'],
+      },
+      {
+        title: 'Barrier Serum',
+        badge: 'Daily',
+        desc: 'Panthenol + soothing extracts to calm and support repair.',
+        tags: ['panthenol', 'cica'],
+      },
+      {
+        title: 'Mineral SPF',
+        badge: 'AM',
+        desc: 'Zinc-based sunscreen to reduce irritation risk.',
+        tags: ['zinc oxide', 'low irritation'],
+      },
+    ],
     amRoutine: [
       { icon: '🫧', label: 'Non-foaming\ncleanser' },
       { icon: '🩹', label: 'Barrier\nserum' },
@@ -97,6 +177,26 @@ const SKIN_ADVICE = {
       'Keep a steady rhythm: cleanse, treat, moisturise, protect.',
       'Experiment with one new active at a time.',
       'Prioritise long-term consistency over quick changes.',
+    ],
+    recommendations: [
+      {
+        title: 'Gentle Cleanser',
+        badge: 'AM / PM',
+        desc: 'A consistent base that won’t destabilise your barrier.',
+        tags: ['simple', 'daily'],
+      },
+      {
+        title: 'Antioxidant Serum',
+        badge: 'AM',
+        desc: 'Vitamin C (or a derivative) to brighten and guard.',
+        tags: ['vitamin C', 'brightening'],
+      },
+      {
+        title: 'Light Moisturiser + SPF',
+        badge: 'AM',
+        desc: 'Hydration and protection—your highest ROI habit.',
+        tags: ['SPF', 'consistency'],
+      },
     ],
     amRoutine: [
       { icon: '🫧', label: 'Gentle\ncleanser' },
@@ -162,6 +262,7 @@ function hydrateDashboardFromSkinType() {
   const ingredientTagline = document.getElementById('ingredient-tagline');
   const ingredientDetail = document.getElementById('ingredient-detail');
   const greeting = document.getElementById('dashboard-greeting');
+  const recSubtitle = document.getElementById('rec-subtitle');
 
   if (pill) pill.textContent = config.pill;
   if (value) value.textContent = config.label;
@@ -184,6 +285,7 @@ function hydrateDashboardFromSkinType() {
   }
 
   populateAmRoutine(config.amRoutine);
+  populateRecommendations(config.recommendations, skinType, recSubtitle);
 }
 
 function populateAmRoutine(items) {
@@ -215,6 +317,38 @@ function populateCommunity() {
     li.className = 'community-item';
     li.innerHTML = `${r.quote}<span>${r.name}</span>`;
     ul.appendChild(li);
+  });
+}
+
+function populateRecommendations(items, skinType, subtitleEl) {
+  const grid = document.getElementById('rec-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (subtitleEl) {
+    subtitleEl.textContent = `For ${skinType} Skin ID`;
+  }
+
+  const safeItems = Array.isArray(items) && items.length ? items : SKIN_ADVICE.Balanced.recommendations;
+  safeItems.forEach((rec) => {
+    const card = document.createElement('div');
+    card.className = 'rec-card';
+
+    const tagsHtml = (rec.tags || [])
+      .slice(0, 4)
+      .map((t) => `<span class="rec-tag">${t}</span>`)
+      .join('');
+
+    card.innerHTML = `
+      <div class="rec-top">
+        <p class="rec-title">${rec.title}</p>
+        <span class="rec-badge">${rec.badge}</span>
+      </div>
+      <p class="rec-desc">${rec.desc}</p>
+      <div class="rec-tags">${tagsHtml}</div>
+    `;
+
+    grid.appendChild(card);
   });
 }
 
