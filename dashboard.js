@@ -358,3 +358,144 @@ document.addEventListener('DOMContentLoaded', () => {
   populateCommunity();
 });
 
+// --- CURATED PRODUCT SHOWCASE LOGIC ---
+  
+  // 1. Database of real products for Combination Skin
+ // 1. Database of real products for Combination Skin (Now with real links!)
+  const productDatabase = {
+    cleansers: [
+      { 
+        brand: 'Youth To The People', 
+        name: 'Superfood Cleanser', 
+        desc: 'A gentle gel cleanser packed with antioxidant-rich kale and spinach to balance oily zones without stripping dry cheeks.', 
+        icon: '🌿', 
+        link: 'https://www.sephora.com/product/kale-spinach-green-tea-age-prevention-cleanser-P411538' 
+      },
+      { 
+        brand: 'CeraVe', 
+        name: 'Renewing SA Cleanser', 
+        desc: 'Provides gentle, non-irritating exfoliation with salicylic acid to help clear pores in the T-zone while maintaining the skin barrier.', 
+        icon: '🫧', 
+        link: 'https://www.ulta.com/p/renewing-sa-cleanser-for-normal-skin-pimprod2003748' 
+      },
+      { 
+        brand: 'La Roche-Posay', 
+        name: 'Toleriane Purifying Foaming Cleanser', 
+        desc: 'A daily gel cleanser that effectively removes excess oil, dirt, and makeup while preserving the skin barrier.', 
+        icon: '💧', 
+        link: 'https://www.ulta.com/p/toleriane-purifying-foaming-face-wash-oily-skin-xlsImpprod15321287' 
+      }
+    ],
+    treatments: [
+      { 
+        brand: 'Paula\'s Choice', 
+        name: 'Skin Perfecting 2% BHA Liquid Exfoliant', 
+        desc: 'A cult-favorite chemical exfoliant that unclogs and shrinks enlarged pores, smooths texture, and evens out skin tone.', 
+        icon: '✨', 
+        link: 'https://www.sephora.com/product/paula-s-choice-skin-perfecting-2-bha-liquid-exfoliant-P461147' 
+      },
+      { 
+        brand: 'The Ordinary', 
+        name: 'Niacinamide 10% + Zinc 1%', 
+        desc: 'A potent serum that reduces the appearance of skin blemishes and congestion while balancing visible sebum activity.', 
+        icon: '🧪', 
+        link: 'https://www.sephora.com/product/the-ordinary-deciem-niacinamide-10-zinc-1-P427417' 
+      }
+    ],
+    moisturizers: [
+      { 
+        brand: 'Neutrogena', 
+        name: 'Hydro Boost Water Gel', 
+        desc: 'Instantly quenches dry skin and keeps it looking smooth, supple and hydrated day after day. Perfect lightweight texture for combination skin.', 
+        icon: '🌊', 
+        link: 'https://www.ulta.com/p/hydro-boost-water-gel-moisturizer-xlsImpprod11341063' 
+      },
+      { 
+        brand: 'Kiehl\'s', 
+        name: 'Ultra Facial Cream', 
+        desc: 'A lightweight daily moisturizer that provides 24-hour hydration, absorbing easily to balance both oily and dry areas.', 
+        icon: '☁️', 
+        link: 'https://www.sephora.com/product/ultra-facial-cream-P421996' 
+      }
+    ]
+  };
+
+  // 2. Grab DOM elements
+  const productDisplay = document.getElementById('product-display');
+  const categoryTabs = document.querySelectorAll('.product-tabs .toggle-btn');
+  
+  let currentCategory = 'cleansers';
+  let currentProductIndex = 0;
+
+  // 3. Render Function
+  function renderProduct() {
+    const productsList = productDatabase[currentCategory];
+    const product = productsList[currentProductIndex];
+    
+    // Check if there are multiple options to show the "Alternative" button
+    const hasAlternatives = productsList.length > 1;
+
+    productDisplay.innerHTML = `
+      <div class="product-card-real">
+        <div class="product-emoji-holder">
+          ${product.icon}
+        </div>
+        <div class="product-info">
+          <p class="product-brand">${product.brand}</p>
+          <h3 class="product-name">${product.name}</h3>
+          <p class="product-desc">${product.desc}</p>
+          <div class="product-actions">
+            <a href="${product.link}" class="btn-shop" target="_blank">View Product</a>
+            ${hasAlternatives ? `<button class="btn-next-alt" id="btn-next-alt">See Alternative ↺</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 4. Attach event listener to the "Alternative" button
+    if (hasAlternatives) {
+      document.getElementById('btn-next-alt').addEventListener('click', () => {
+        // Cycle to the next product in the array, loop back to 0 if at the end
+        currentProductIndex = (currentProductIndex + 1) % productsList.length;
+        renderProduct();
+      });
+    }
+  }
+
+  // 5. Handle Category Tab Clicks
+  categoryTabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      // Remove active class from all tabs
+      categoryTabs.forEach(t => t.classList.remove('active-tab'));
+      // Add active class to the clicked tab
+      e.target.classList.add('active-tab');
+      
+      // Update state and re-render
+      currentCategory = e.target.getAttribute('data-category');
+      currentProductIndex = 0; // Always start at the first product when switching categories
+      renderProduct();
+    });
+  });
+
+  // 6. Initial Render on page load
+  renderProduct();
+
+  // --- Navigation Lock Logic ---
+    function checkDashboardAccess() {
+      const dashboardLink = document.getElementById('nav-dashboard');
+      const hasSkinType = localStorage.getItem('skinType');
+
+      // If they haven't taken the quiz (no skinType), disable the link
+      if (!hasSkinType) {
+        dashboardLink.classList.add('disabled');
+        dashboardLink.href = 'javascript:void(0)'; // Removes the destination
+        dashboardLink.title = 'Please complete the diagnostic quiz first';
+      } else {
+        dashboardLink.classList.remove('disabled');
+        dashboardLink.href = 'dashboard.html';
+        dashboardLink.title = '';
+      }
+    }
+
+    // Run the check as soon as the page loads
+    document.addEventListener('DOMContentLoaded', checkDashboardAccess);
